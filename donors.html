@@ -1,0 +1,242 @@
+<html>
+<head>
+<title>Donar Data </title>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+</head>
+<body> 
+
+
+<div class="col-md-6">
+  <form>
+    <div class="form-group">
+    <label>First name</label>
+    <input type="text" class="form-control" id="first-name" placeholder="first name">
+  </div>
+  <div class="form-group">
+   <label>Last name</label>
+    <input type="text" class="form-control" id="last-name"placeholder="last name">
+  </div>
+  <div class="form-group">
+    <label>Email address</label>
+    <input type="email" class="form-control" id="email" placeholder="Enter email">
+  </div>
+
+  <div class="form-group">
+    <label>Device-Id</label>
+    <input type="text" class="form-control" id="deviceid" placeholder="Device Id">
+  </div>
+
+  <div class="form-group">
+    <label>Device Description</label>
+    <textarea class="form-control" rows="4" cols="10" id="devicedesc" placeholder="Describe about device....."></textarea>
+  </div>
+
+  <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+</form>
+</div>
+
+
+  <button type="submit" id="getData" class="btn btn-primary">Donor's data</button>
+  
+  <button type="submit" id="trackdev" class="btn btn-primary">track data</button>
+ 
+
+  <div class="col-md-6">
+    <table class="table table-striped" id='dataTb0' >
+      <thead>
+        <tr>
+          <th scope="col">Data-Num</th>
+          <th scope="col">Donar's Email-Id</th>
+          <th scope="col">Recipient's Email-Id</th>
+          <th scope="col">Device-Id</th>
+          
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          
+        </tr>
+      
+      </tbody>
+    </table>
+    </div>
+
+   
+<div class="col-md-6">
+ 
+<table class="table table-striped" id='dataTbl' style="display:none">
+  <thead>
+    <tr><h1>Donor Data</h1></tr>
+    <tr>
+      <th scope="col">Data-Num</th>
+      <th scope="col">First-Name</th>
+      <th scope="col">Last-Name</th>
+      <th scope="col">Email-Id</th>
+      <th scope="col">Device-Id</th>
+      <th scope="col">Device-Description</th>
+      
+    </tr>
+  </thead>
+  <tbody>
+  
+  </tbody>
+</table>
+</div>
+
+
+</body>
+</html>
+
+<!-- upto this there is a html now it is a start of javascript -->
+<!-- //link of jquery for using javascript library  -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<!-- link for cdn for quick insertion and deletion of the data on the backend -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getDatabase, set, ref ,push, child, onValue} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    // put your firebase configration as metioned in point A's 2nd point
+    
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  
+  // Get a reference to the database service
+  const database = getDatabase(app);
+
+  // write data to the html table using reference to the database collecction
+  submit.addEventListener('click',(e) => 
+  {
+    var firstName = document.getElementById('first-name').value;  
+    var lastName = document.getElementById('last-name').value;  
+    var email = document.getElementById('email').value; 
+    var deviceid = document.getElementById('deviceid').value; 
+    var devicedesc = document.getElementById('devicedesc').value;  
+
+    //donors is the name of donor's database collection
+    const userId = push(child(ref(database), 'donors')).key;
+   
+    // setting the value of the database keys to the value that user entered from the frontend 
+    set(ref(database, 'donors/' + userId), 
+    {
+    firstName: firstName,
+    lastName: lastName,
+    email : email,
+    deviceid : deviceid,
+    devicedesc : devicedesc
+
+   });
+   alert('saved');
+  });
+
+  // read data from backend and putting it on the frontend
+  getData.addEventListener('click',(e) => 
+  {
+    console.log("h1");
+
+    $('#dataTbl td').remove();
+    var rowNum = 0; 
+    // dbRef is a refernce to the database of donors
+    const dbRef = ref(database, '/donors');
+    console.log("h2");
+    onValue(dbRef, (snapshot) =>
+     {
+      console.log("h3");
+      snapshot.forEach((childSnapshot) => 
+      {
+      const childKey = childSnapshot.key;
+      const childData = childSnapshot.val();
+      // ...
+      rowNum += 1; 
+      var row = "<tr><td>" + rowNum + "</td><td>" + childData.firstName + "</td><td>" + childData.lastName + "</td><td>" + childData.email +"</td><td>" + childData.deviceid+"</td><td>" + childData.devicedesc+ "</td></tr>"
+        // appending the value to the html table having id of dataTbl
+      $(row).appendTo('#dataTbl');
+      
+      });
+    },
+     {
+       onlyOnce: true
+    });
+
+  });
+   
+
+  //function for tracking a device for the donor's use
+  var rowNum = 0; 
+  trackdev.addEventListener('click',(e) => 
+  {
+
+    $('#dataTb0 td').remove();//this will remove previous appended data and append new data with new append operation
+    
+    const dbRef = ref(database, '/donation');
+    console.log("h2");
+
+    console.log("h1");
+
+    onValue(dbRef, (snapshot) =>
+     {
+      console.log("h3");
+      snapshot.forEach((childSnapshot) => 
+      {
+      const childKey = childSnapshot.key;
+      const childData = childSnapshot.val();
+      
+      var row = "<tr><td>" + rowNum + "</td><td>" + childData.emaild + "</td><td>" + childData.emailr + "</td><td>" + childData.devid + "</td></tr>"
+      });
+    },
+    {
+       onlyOnce: true
+    });
+
+    //taking input from the users and storing it in a variable person
+    let person = prompt("Please enter device-id to see recipient's email-id ", "4");
+    rowNum = 0;
+    // functional loop for going through each document in the collection
+    onValue(dbRef, (snapshot) =>
+     {
+    
+      snapshot.forEach((childSnapshot) => 
+      {
+      const childKey = childSnapshot.key;
+      const childData = childSnapshot.val();
+      // ..
+      //if we found data maching with the field that user enter then that data will be apppended to yhe table
+      if(childData.devid == person)
+      {
+        rowNum += 1; 
+      var row = "<tr><td>" + rowNum + "</td><td>" + childData.emaild + "</td><td>" + childData.emailr + "</td><td>" + childData.devid + "</td></tr>"
+
+      $(row).appendTo('#dataTb0');
+      }
+     
+      });
+    }
+    ,
+     {
+       onlyOnce: true
+    });
+  });
+
+
+  //to hide and unhide receivers table
+document.getElementById("getData").addEventListener("click", function(button) 
+{    
+   if (document.getElementById("dataTbl").style.display === "none")             
+   document.getElementById("dataTbl").style.display = "block";
+   else document.getElementById("dataTbl").style.display = "none";
+});
+
+
+</script>

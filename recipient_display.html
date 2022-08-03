@@ -1,0 +1,167 @@
+<html>
+<head>
+<title>Recipient Data </title>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+</head>
+<body> 
+<div class="col-md-6">
+  <form method="post">
+    <div class="form-group">
+    <label required="">First name</label>
+    <input type="text" class="form-control" id="first-name" placeholder="first name" required=" ">
+  </div>
+  <div class="form-group">
+   <label>Last name</label>
+    <input type="text" class="form-control" id="last-name"placeholder="last name" required=" ">
+  </div>
+  <div class="form-group">
+    <label required="">Email address</label>
+    <input type="email" pattern="[a-z0-9]+@[a-z]+\.[a-z]{2,3}" class=" form-control"  id="email" placeholder="Enter email"  title="must be in string@gmail.com or string@gmail.in " required="">
+  </div>
+
+  <div class="form-group">
+    <label>Description of the requested device</label>
+    <textarea class="form-control" rows="4" cols="10" id="devicedesc" required=" " placeholder="Describe about device....." required=" "></textarea>
+  </div>
+
+  <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+</form>
+</div>
+
+  <button type="submit" id="getData" class="btn btn-primary">Search data</button>
+
+<div class="col-md-6">
+<table class="table table-striped" id='dataTbl'>
+  <thead>
+    <tr>
+      <th scope="col">Data-Num</th>
+      <th scope="col">First-Name</th>
+      <th scope="col">Last-Name</th>
+      <th scope="col">Email-Id</th>
+      <th scope="col">Description of the requested device</th>
+      
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>hii</td>
+      <td>hii</td>
+      <td>hii</td>
+      <td>hii</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>hii</td>
+      <td>hii</td>
+      <td>hii</td>
+      <td>hii</td>
+    </tr>
+  
+  </tbody>
+</table>
+</div>
+
+
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getDatabase, set, ref ,push, child, onValue} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+
+    //Write your firebase configration from your firebase project 
+    
+    
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  
+  // Get a reference to the database service
+  const database = getDatabase(app);
+
+  // write data
+  submit.addEventListener('click',(e) => 
+  {
+    var firstName = document.getElementById('first-name').value;  
+    var lastName = document.getElementById('last-name').value;  
+    var email = document.getElementById('email').value; 
+    var devicedesc = document.getElementById('devicedesc').value; 
+    
+    if (firstName === '' ) {
+        alert('First Name is required.');
+        return false;
+    }
+    if (lastName === '' ) {
+        alert('Last Name is required.');
+        return false;
+    }
+    if (email === '' ) {
+        alert('Email is required.');
+        return false;
+    }
+    if ( devicedesc === '' ) {
+        alert('Device Description is required.');
+        return false;
+    }
+
+    const userId = push(child(ref(database), 'recipient')).key;
+   
+    set(ref(database, 'recipient/' + userId), 
+    {
+    firstName: firstName,
+    lastName: lastName,
+    email : email,
+    devicedesc : devicedesc
+
+   });
+   alert('saved');
+
+   
+  });
+
+  // read data
+  getData.addEventListener('click',(e) => 
+  {
+
+    console.log("h1");
+
+    $('#dataTbl td').remove();
+    var rowNum = 0; 
+    const dbRef = ref(database, '/recipient');
+    console.log("h2");
+    onValue(dbRef, (snapshot) =>
+     {
+      console.log("h3");
+      snapshot.forEach((childSnapshot) => 
+      {
+      const childKey = childSnapshot.key;
+      const childData = childSnapshot.val();
+      // ...
+      rowNum += 1; 
+      var row = "<tr><td>" + rowNum + "</td><td>" + childData.firstName + "</td><td>" + childData.lastName + "</td><td>" + childData.email +"</td><td>" + childData.devicedesc+ "</td></tr>"
+
+      $(row).appendTo('#dataTbl');
+      
+      });
+    },
+     {
+       onlyOnce: true
+    });
+
+  });
+  
+</script>
